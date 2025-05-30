@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaReel Downloader | Save Instagram Reels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #833AB4;
+            --secondary: #E1306C;
+            --accent: #F77737;
+            --light: #f8f9fa;
+            --dark: #121212;
+            --gray: #8e8e8e;
+            --success: #4ade80;
+            --error: #dc3545;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark), #1a1a2e);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(131, 58, 180, 0.15), transparent 30%),
+                        radial-gradient(circle at bottom left, rgba(225, 48, 108, 0.15), transparent 30%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding: 1rem;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .logo {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 20px rgba(225, 48, 108, 0.3);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: rgba(30, 30, 46, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: fadeInUp 0.8s ease;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+            color: #e0e0e0;
+            font-size: 1.1rem;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(25, 25, 35, 0.7);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(131, 58, 180, 0.3);
+        }
+
+        .url-input::placeholder {
+            color: #6c757d;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 1.2rem 1rem;
+            border-radius: 12px;
+            background: rgba(25, 25, 35, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #b0b0b0;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: transparent;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(225, 48, 108, 0.3);
+        }
+
+        .mode-btn i {
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 1.2rem;
+            border-radius: 12px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            box-shadow: 0 5px 15px rgba(225, 48, 108, 0.4);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(225, 48, 108, 0.6);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 2rem;
+            background: rgba(25, 25, 35, 0.7);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--success);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .result-header i {
+            color: var(--success);
+            font-size: 1.5rem;
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .download-link {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 10px;
+            color: #64b5f6;
+            font-size: 0.95rem;
+            word-break: break-all;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(100, 181, 246, 0.2);
+        }
+
+        .copy-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(30, 30, 46, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background: rgba(100, 181, 246, 0.1);
+            border-color: rgba(100, 181, 246, 0.4);
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top: 5px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        .loader-text {
+            font-size: 1.1rem;
+            color: var(--gray);
+        }
+
+        .error-message {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background: rgba(220, 53, 69, 0.2);
+            border-radius: 12px;
+            border-left: 4px solid var(--error);
+            color: #ff6b6b;
+            font-weight: 500;
+            animation: fadeIn 0.3s ease;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 2rem 0 1rem;
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .instructions {
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .instructions h2 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-size: 1.4rem;
+        }
+
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fab fa-instagram"></i>
+                </div>
+            </div>
+            <h1>InstaReel Downloader</h1>
+            <p class="subtitle">Download Instagram Reels in high quality with audio. Paste the link, choose format, and download instantly!</p>
+        </header>
+
+        <div class="instructions">
+            <h2>How to use:</h2>
+            <ol>
+                <li>Open Instagram and find the Reel you want to download</li>
+                <li>Tap the three dots (...) and select "Copy link"</li>
+                <li>Paste the link in the input field below</li>
+                <li>Choose whether you want audio-only or video with audio</li>
+                <li>Click "Download Now" and get your download link!</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <label for="reelUrl">Instagram Reel URL</label>
+                <input type="text" id="reelUrl" class="url-input" placeholder="Paste Instagram Reel link here..." value="https://www.instagram.com/reel/C5aJlKzpU4_/?hl=en">
+            </div>
+
+            <div class="mode-selector">
+                <div class="mode-btn active" data-mode="both">
+                    <i class="fas fa-video"></i>
+                    <span>Video with Audio</span>
+                </div>
+                <div class="mode-btn" data-mode="audio">
+                    <i class="fas fa-music"></i>
+                    <span>Audio Only</span>
+                </div>
+            </div>
+
+            <button id="downloadBtn" class="download-btn">
+                <i class="fas fa-download"></i>
+                Download Now
+            </button>
+
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Please enter a valid Instagram Reel URL</span>
+            </div>
+
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <p class="loader-text">Processing your request...</p>
+            </div>
+
+            <div class="result-container" id="resultContainer">
+                <div class="result-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h3 class="result-title">Your Download is Ready!</h3>
+                </div>
+                <div class="download-link" id="downloadLink">https://example.com/path/to/your/download.mp4</div>
+                <button class="copy-btn" id="copyBtn">
+                    <i class="fas fa-copy"></i>
+                    Copy Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2023 InstaReel Downloader | Download Instagram Reels for personal use only</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reelUrlInput = document.getElementById('reelUrl');
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const loader = document.getElementById('loader');
+            const resultContainer = document.getElementById('resultContainer');
+            const downloadLink = document.getElementById('downloadLink');
+            const copyBtn = document.getElementById('copyBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            let currentMode = 'both';
+            
+            // Mode selection
+            modeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    modeButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMode = this.dataset.mode;
+                });
+            });
+            
+            // Download button click
+            downloadBtn.addEventListener('click', function() {
+                const url = reelUrlInput.value.trim();
+                
+                // Basic validation
+                if (!url || !url.includes('instagram.com/reel/')) {
+                    showError('Please enter a valid Instagram Reel URL');
+                    return;
+                }
+                
+                // Hide error and previous result
+                hideError();
+                resultContainer.style.display = 'none';
+                
+                // Show loader
+                loader.style.display = 'block';
+                
+                // API call to download Instagram reel
+                fetch('https://greatonlinetools.com/insta-reel/download', {
+                    method: 'POST',
+                    headers: {
+                        'accept': '/',
+                        'accept-language': 'en-US,en;q=0.6',
+                        'content-type': 'application/json',
+                        'origin': 'https://greatonlinetools.com',
+                        'priority': 'u=1, i',
+                        'referer': 'https://greatonlinetools.com/tools/reel-downloader/',
+                        'sec-ch-ua': '"Brave";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+                        'sec-ch-ua-mobile': '?0',
+                        'sec-ch-ua-platform': '"Windows"',
+                        'sec-fetch-dest': 'empty',
+                        'sec-fetch-mode': 'cors',
+                        'sec-fetch-site': 'same-origin',
+                        'sec-gpc': '1',
+                        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        mode: currentMode
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loader
+                    loader.style.display = 'none';
+                    
+                    // Check if we have a download link
+                    if (data && data.url) {
+                        downloadLink.textContent = data.url;
+                        resultContainer.style.display = 'block';
+                    } else {
+                        showError('No download link found in the response');
+                    }
+                })
+                .catch(error => {
+                    // Hide loader
+                    loader.style.display = 'none';
+                    
+                    // Show error
+                    showError('Error fetching download link: ' + error.message);
+                    console.error('Error:', error);
+                });
+            });
+            
+            // Copy link button
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(downloadLink.textContent)
+                    .then(() => {
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalText;
+                        }, 2000);
+                    });
+            });
+            
+            // Helper functions
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.style.display = 'flex';
+            }
+            
+            function hideError() {
+                errorMessage.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
